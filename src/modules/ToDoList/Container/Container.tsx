@@ -1,12 +1,8 @@
-import React, { useState } from 'react';
+import React, { FunctionComponent, ReactElement } from 'react';
 import { ItemForm } from '../Components/ItemForm';
 import { ItemsList } from '../Components/ItemsList';
 
-export const Container = () => {
-    const [items, setItems] = useState([]);
-
-    const onItemSubmit = (name: string, status: string) => {};
-
+export const Container: FunctionComponent = (): ReactElement<{}> => {
     return (
         <div>
             <ItemForm />

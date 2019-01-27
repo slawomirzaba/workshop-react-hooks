@@ -1,8 +1,5 @@
-import React, { useState } from 'react';
+import React, { FunctionComponent, ReactElement } from 'react';
 
-export const ItemForm = () => {
-    const [itemName, setItemName] = useState('');
-    const [isFinished, setIsItemFinished] = useState(false);
-
+export const ItemForm: FunctionComponent = (): ReactElement<{}> => {
     return <div>item form</div>;
 };
