@@ -3,13 +3,17 @@ import { FinishedItemActions } from '../FinishedItemActions';
 import { ToDoItemActions } from '../ToDoItemActions';
 import { ItemI } from '../../interfaces/ItemI';
 
-interface PropsI extends ItemI {}
+interface PropsI extends ItemI {
+    removeItem: (itemId: string) => void;
+}
 
 export const Item: FunctionComponent<PropsI> = ({
     title,
     description,
     isFinished,
     isImportant,
+    removeItem,
+    id,
 }: PropsI): ReactElement<PropsI> => (
     <div className={`items-column__item ${isImportant ? 'items-column__item--important' : ''}`}>
         <div className="items-column__item-title">
@@ -21,6 +25,10 @@ export const Item: FunctionComponent<PropsI> = ({
             {title}
             <div className="items-column__item-description">{description}</div>
         </div>
-        {isFinished ? <FinishedItemActions /> : <ToDoItemActions isImportantItem={isImportant}/>}
+        {isFinished ? (
+            <FinishedItemActions itemId={id} removeItem={removeItem} />
+        ) : (
+            <ToDoItemActions isImportantItem={isImportant} itemId={id} removeItem={removeItem} />
+        )}
     </div>
 );

@@ -1,15 +1,44 @@
-import React, { FunctionComponent, ReactElement } from 'react';
+import React, { FunctionComponent, ReactElement, useState } from 'react';
 
-export const ItemForm: FunctionComponent = (): ReactElement<{}> => {
+interface PropsI {
+    addItem: (title: string, description: string, isImportant: boolean) => void;
+}
+
+export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactElement<PropsI> => {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [isImportant, setIsImportant] = useState(false);
+
+    const onSubmitItem = () => {
+        addItem(title, description, isImportant);
+        setTitle('');
+        setDescription('');
+        setIsImportant(false);
+    };
+
+    const toggleIsImportant = () => {
+        setIsImportant((prevIsImportant: boolean) => !prevIsImportant);
+    };
+
     return (
         <div className="item-form">
             <div className="item-form__field">
                 <label className="item-form__field-label">Name:</label>
-                <input className="item-form__field-input" />
+                <input
+                    className="item-form__field-input"
+                    value={title}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                />
             </div>
             <div className="item-form__field">
                 <label className="item-form__field-label">Description:</label>
-                <textarea className="item-form__field-textarea" />
+                <textarea
+                    className="item-form__field-textarea"
+                    value={description}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        setDescription(e.target.value)
+                    }
+                />
             </div>
             <div className="item-form__field">
                 <label className="item-form__field-label item-form__field-label--checkbox">
@@ -18,9 +47,13 @@ export const ItemForm: FunctionComponent = (): ReactElement<{}> => {
                 <input
                     className="item-form__field-input item-form__field-input--checkbox"
                     type="checkbox"
+                    checked={isImportant}
+                    onChange={toggleIsImportant}
                 />
             </div>
-            <button className="item-form__submit-button">Submit</button>
+            <button className="item-form__submit-button" onClick={onSubmitItem}>
+                Submit
+            </button>
         </div>
     );
 };
