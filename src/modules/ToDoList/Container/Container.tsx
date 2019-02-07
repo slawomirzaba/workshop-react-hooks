@@ -34,7 +34,7 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
         if (item.isFinished) finishedItems.push(item);
         else toDoItems.push(item);
     });
-    const finishedItemsPercentage = toDoItems.length
+    const finishedItemsPercentage = items.length
         ? 100 - (toDoItems.length * 100) / (toDoItems.length + finishedItems.length)
         : 0;
 

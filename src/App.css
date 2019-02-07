@@ -192,7 +192,7 @@ body {
   border-color: #adad06;
 }
 
-.items__title-important-icon {
+.items-column__title-important-icon {
   font-size: 0.7rem;
   vertical-align: middle;
   color: rgb(90, 43, 4);
