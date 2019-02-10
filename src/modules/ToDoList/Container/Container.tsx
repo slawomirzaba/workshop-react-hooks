@@ -1,57 +1,92 @@
-import React, { FunctionComponent, ReactElement, useState } from 'react';
+import React, { FunctionComponent, ReactElement, useState, useEffect } from 'react';
 import { ItemForm } from '../Components/ItemForm';
 import { ItemsLists } from '../Components/ItemsLists';
-import { ItemI } from '../interfaces/ItemI';
+import { ItemI, DataBaseItemI } from '../interfaces/ItemI';
+import { fetchItems, saveItem, deleteItem, updateItem } from '../services';
 
 export const Container: FunctionComponent = (): ReactElement<{}> => {
-    const [items, setItems] = useState([
-        {
-            id: '1',
-            title: 'jakis tam task to do',
-            description: 'description taska ktory ma zostac wykonnay i jets fajny',
-            isFinished: false,
-            isImportant: false,
-        },
-        {
-            id: '3',
-            title: 'jakis tam trudny item',
-            description:
-                'description taska ktory ma zostac wykonnay i jets fajny i jest super i powinien zostac zrobiony ale jets trudny',
-            isFinished: false,
-            isImportant: true,
-        },
-        {
-            id: '2',
-            title: 'jakis tam task skonczony',
-            description: 'description asasd',
-            isFinished: true,
-            isImportant: false,
-        },
-    ]);
-    const toDoItems: ItemI[] = [];
-    const finishedItems: ItemI[] = [];
-    items.forEach((item: ItemI) => {
-        if (item.isFinished) finishedItems.push(item);
-        else toDoItems.push(item);
-    });
-    const finishedItemsPercentage = items.length
-        ? 100 - (toDoItems.length * 100) / (toDoItems.length + finishedItems.length)
-        : 0;
+    const [items, setItems] = useState<ItemI[]>([]);
+    const [toDoItems, setToDoItems] = useState<ItemI[]>([]);
+    const [finishedItems, setFinishedItems] = useState<ItemI[]>([]);
+    const [finishedItemsPercentage, setFinishedItemsPercentage] = useState(0);
+
+    useEffect(() => {
+        fetchItems().then((newItems: ItemI[]) => {
+            setItems(newItems);
+        });
+    }, []);
+
+    useEffect(() => {
+        const newToDoItems: ItemI[] = [];
+        const newFinishedItems: ItemI[] = [];
+
+        items.forEach((item: ItemI) => {
+            if (item.isFinished) newFinishedItems.push(item);
+            else newToDoItems.push(item);
+        });
+        const newFinishedItemsPercentage = items.length
+            ? 100 - (newToDoItems.length * 100) / (newToDoItems.length + newFinishedItems.length)
+            : 0;
+
+        setToDoItems(newToDoItems);
+        setFinishedItems(newFinishedItems);
+        setFinishedItemsPercentage(newFinishedItemsPercentage);
+    }, [items]);
 
     const addItem = (title: string, description: string, isImportant: boolean): void => {
-        const newItem: ItemI = {
-            id: `${Math.random()}`,
+        const newItem: DataBaseItemI = {
             title,
             description,
             isImportant,
             isFinished: false,
         };
 
-        setItems((prevItems: ItemI[]) => [...prevItems, newItem]);
+        saveItem(newItem).then((itemWithId: ItemI) => {
+            setItems((prevItems: ItemI[]) => [...prevItems, itemWithId]);
+        });
     };
 
     const removeItem = (itemId: string): void => {
-        setItems((prevItems: ItemI[]) => prevItems.filter((item: ItemI) => item.id !== itemId));
+        deleteItem(itemId).then(() => {
+            setItems((prevItems: ItemI[]) => prevItems.filter((item: ItemI) => item.id !== itemId));
+        });
+    };
+
+    const setIsFinishedItem = (itemId: string, isFinished: boolean): void => {
+        updateItem(itemId, { isFinished }).then(() => {
+            setItems((prevItems: ItemI[]) =>
+                prevItems.map((item: ItemI) => {
+                    if (item.id === itemId) {
+                        return {
+                            ...item,
+                            isFinished: isFinished,
+                        };
+                    }
+                    return item;
+                }),
+            );
+        });
+    };
+
+    const toggleIsImportantItem = (itemId: string): void => {
+        const currentItem = items.find(item => item.id === itemId);
+        if (!currentItem) return;
+
+        const newIsImportantState = !currentItem.isImportant;
+
+        updateItem(itemId, { isImportant: newIsImportantState }).then(() => {
+            setItems((prevItems: ItemI[]) =>
+                prevItems.map((item: ItemI) => {
+                    if (item.id === itemId) {
+                        return {
+                            ...item,
+                            isImportant: newIsImportantState,
+                        };
+                    }
+                    return item;
+                }),
+            );
+        });
     };
 
     return (
@@ -62,6 +97,8 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
                 finishedItems={finishedItems}
                 finishedItemsPercentage={finishedItemsPercentage}
                 removeItem={removeItem}
+                setIsFinishedItem={setIsFinishedItem}
+                toggleIsImportantItem={toggleIsImportantItem}
             />
         </div>
     );
