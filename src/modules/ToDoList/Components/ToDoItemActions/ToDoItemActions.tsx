@@ -1,4 +1,5 @@
 import React, { FunctionComponent, ReactElement } from 'react';
+import { RemoveButton } from '../RemoveButton';
 
 interface PropsI {
     isImportantItem: boolean;
@@ -22,11 +23,6 @@ export const ToDoItemActions: FunctionComponent<PropsI> = ({
                 className={isImportantItem ? 'fas fa-star' : 'far fa-star'}
             />
         </button>
-        <button
-            className="items-column__action-button items-column__action-button--remove"
-            title="Remove"
-        >
-            <i className="fas fa-trash" />
-        </button>
+        <RemoveButton />
     </div>
 );
