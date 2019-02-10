@@ -1,4 +1,5 @@
 import React, { ReactElement, FunctionComponent } from 'react';
+import { RemoveButton } from '../RemoveButton';
 
 interface PropsI {
     itemId: string;
@@ -16,12 +17,6 @@ export const FinishedItemActions: FunctionComponent<PropsI> = ({
         >
             <i className="fas fa-undo" />
         </button>
-        <button
-            className="items-column__action-button items-column__action-button--remove"
-            title="Remove"
-            onClick={() => removeItem(itemId)}
-        >
-            <i className="fas fa-trash" />
-        </button>
+        <RemoveButton onRemove={() => removeItem(itemId)}/>
     </div>
 );
