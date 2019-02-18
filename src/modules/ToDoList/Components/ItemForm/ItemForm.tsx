@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useState } from 'react';
+import React, { FunctionComponent, ReactElement, useState, useRef, useEffect } from 'react';
 
 interface PropsI {
     addItem: (title: string, description: string, isImportant: boolean) => void;
@@ -8,6 +8,13 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [isImportant, setIsImportant] = useState(false);
+    const inputName = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (!inputName.current) return;
+
+        inputName.current.focus();
+    }, []);
 
     const onSubmitItem = () => {
         addItem(title, description, isImportant);
@@ -20,11 +27,13 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
         setIsImportant((prevIsImportant: boolean) => !prevIsImportant);
     };
 
+    console.log('rendering...');
     return (
         <div className="item-form">
             <div className="item-form__field">
                 <label className="item-form__field-label">Name:</label>
                 <input
+                    ref={inputName}
                     className="item-form__field-input"
                     value={title}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
