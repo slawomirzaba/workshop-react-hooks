@@ -1,4 +1,5 @@
 import React, { FunctionComponent, ReactElement, useState, useRef, useEffect } from 'react';
+import { useToggle } from '../../../Common/hooks';
 
 interface PropsI {
     addItem: (title: string, description: string, isImportant: boolean) => void;
@@ -7,7 +8,11 @@ interface PropsI {
 export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactElement<PropsI> => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [isImportant, setIsImportant] = useState(false);
+    const {
+        value: isImportant,
+        toggleValue: toggleIsImportant,
+        setValue: setIsImportant,
+    } = useToggle(false);
     const inputName = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -21,10 +26,6 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
         setTitle('');
         setDescription('');
         setIsImportant(false);
-    };
-
-    const toggleIsImportant = () => {
-        setIsImportant((prevIsImportant: boolean) => !prevIsImportant);
     };
 
     console.log('rendering...');
