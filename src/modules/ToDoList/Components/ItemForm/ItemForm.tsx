@@ -1,13 +1,12 @@
 import React, { FunctionComponent, ReactElement, useState, useRef, useEffect } from 'react';
-import { useToggle } from '../../../Common/hooks';
-
+import { useToggle, useTextInput } from '../../../Common/hooks';
 interface PropsI {
     addItem: (title: string, description: string, isImportant: boolean) => void;
 }
 
 export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactElement<PropsI> => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
+    const title = useTextInput('', 'how is this task named?');
+    const description = useTextInput('', 'what is this task about anyway?');
     const {
         value: isImportant,
         toggleValue: toggleIsImportant,
@@ -22,9 +21,9 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
     }, []);
 
     const onSubmitItem = () => {
-        addItem(title, description, isImportant);
-        setTitle('');
-        setDescription('');
+        addItem(title.value, description.value, isImportant);
+        title.clear();
+        description.clear();
         setIsImportant(false);
     };
 
@@ -36,18 +35,14 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
                 <input
                     ref={inputName}
                     className="item-form__field-input"
-                    value={title}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                    {...title.inputProps}
                 />
             </div>
             <div className="item-form__field">
                 <label className="item-form__field-label">Description:</label>
                 <textarea
                     className="item-form__field-textarea"
-                    value={description}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        setDescription(e.target.value)
-                    }
+                    {...description.inputProps}
                 />
             </div>
             <div className="item-form__field">
