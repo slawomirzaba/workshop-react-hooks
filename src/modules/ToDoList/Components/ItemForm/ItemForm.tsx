@@ -32,18 +32,11 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
         <div className="item-form">
             <div className="item-form__field">
                 <label className="item-form__field-label">Name:</label>
-                <input
-                    ref={inputName}
-                    className="item-form__field-input"
-                    {...title.inputProps}
-                />
+                <input ref={inputName} className="item-form__field-input" {...title.inputProps} />
             </div>
             <div className="item-form__field">
                 <label className="item-form__field-label">Description:</label>
-                <textarea
-                    className="item-form__field-textarea"
-                    {...description.inputProps}
-                />
+                <textarea className="item-form__field-textarea" {...description.inputProps} />
             </div>
             <div className="item-form__field">
                 <label className="item-form__field-label item-form__field-label--checkbox">
