@@ -1,5 +1,13 @@
-import React, { FunctionComponent, ReactElement, useState, useRef, useEffect } from 'react';
+import React, {
+    FunctionComponent,
+    ReactElement,
+    useState,
+    useRef,
+    useEffect,
+    useContext,
+} from 'react';
 import { useToggle, useTextInput } from '../../../Common/hooks';
+import { AuthContext } from '../../../../context';
 interface PropsI {
     addItem: (title: string, description: string, isImportant: boolean) => void;
 }
@@ -12,6 +20,7 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
         toggleValue: toggleIsImportant,
         setValue: setIsImportant,
     } = useToggle(false);
+    const authorizationContext = useContext(AuthContext);
     const inputName = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -28,6 +37,10 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
     };
 
     console.log('rendering...');
+
+    if (!authorizationContext.authenticated)
+        return <div className="item-form">Log in if you want to add new item!</div>;
+
     return (
         <div className="item-form">
             <div className="item-form__field">
