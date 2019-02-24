@@ -4,7 +4,7 @@ import { ItemsLists } from '../Components/ItemsLists';
 import { ItemI } from '../interfaces/ItemI';
 
 export const Container: FunctionComponent = (): ReactElement<{}> => {
-    const items = [
+    const items: ItemI[] = [
         {
             id: '1',
             title: 'jakis tam task to do',

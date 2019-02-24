@@ -14,7 +14,7 @@ export const Item: FunctionComponent<PropsI> = ({
     <div className={`items-column__item ${isImportant ? 'items-column__item--important' : ''}`}>
         <div className="items-column__item-title">
             {isImportant && (
-                <span className="items-column__title-important-icon" title="Important item">
+                <span className="items__title-important-icon" title="Important item">
                     <i className="fas fa-exclamation-triangle" />
                 </span>
             )}{' '}

@@ -192,7 +192,7 @@ body {
   border-color: #adad06;
 }
 
-.items-column__title-important-icon {
+.items__title-important-icon {
   font-size: 0.7rem;
   vertical-align: middle;
   color: rgb(90, 43, 4);
@@ -258,4 +258,20 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.header__auth-button {
+  margin-left: 20px;
+  background: #0066a2;
+  color: white;
+  height: 30px;
+  font-weight: 700;
+  width: 100px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.header__auth-button--logout {
+  background: #9e0000;
 }
