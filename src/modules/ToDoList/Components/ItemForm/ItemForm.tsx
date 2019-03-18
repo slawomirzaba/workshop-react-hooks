@@ -39,13 +39,22 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
     console.log('rendering...');
 
     if (!authorizationContext.authenticated)
-        return <div className="item-form">Log in if you want to add new item!</div>;
+        return (
+            <div className="item-form" data-testid="unauthorized">
+                Log in if you want to add new item!
+            </div>
+        );
 
     return (
         <div className="item-form">
             <div className="item-form__field">
                 <label className="item-form__field-label">Name:</label>
-                <input ref={inputName} className="item-form__field-input" {...title.inputProps} />
+                <input
+                    ref={inputName}
+                    data-testid="inputRef"
+                    className="item-form__field-input"
+                    {...title.inputProps}
+                />
             </div>
             <div className="item-form__field">
                 <label className="item-form__field-label">Description:</label>
