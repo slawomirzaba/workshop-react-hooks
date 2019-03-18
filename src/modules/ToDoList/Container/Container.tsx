@@ -2,6 +2,7 @@ import React, { FunctionComponent, ReactElement, useState } from 'react';
 import { ItemForm } from '../Components/ItemForm';
 import { ItemsLists } from '../Components/ItemsLists';
 import { ItemI } from '../interfaces/ItemI';
+import { calculateProgressValue } from '../lib';
 
 export const Container: FunctionComponent = (): ReactElement<{}> => {
     const [items, setItems] = useState([
@@ -34,9 +35,7 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
         if (item.isFinished) finishedItems.push(item);
         else toDoItems.push(item);
     });
-    const finishedItemsPercentage = items.length
-        ? 100 - (toDoItems.length * 100) / (toDoItems.length + finishedItems.length)
-        : 0;
+    const finishedItemsPercentage = calculateProgressValue(toDoItems.length, finishedItems.length);
 
     const addItem = (title: string, description: string, isImportant: boolean): void => {
         const newItem: ItemI = {
