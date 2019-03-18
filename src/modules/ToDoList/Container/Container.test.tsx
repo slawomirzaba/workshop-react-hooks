@@ -4,11 +4,10 @@ import {
     render,
     cleanup,
     fireEvent,
-    waitForElement,
     waitForDomChange,
+    waitForElement,
 } from 'react-testing-library';
 import { fetchItems, deleteItem, saveItem, updateItem } from '../services';
-import { calculateProgressValue } from '../lib/calculateProgressValue';
 import { ToDoList as Container } from './';
 import { ItemForm } from '../Components/ItemForm';
 import { ItemsLists } from '../Components/ItemsLists';
@@ -40,18 +39,18 @@ const MOCKED_ITEMS: ItemI[] = [
 ];
 
 const MOCKED_ITEMS_LIST = props => (
-    <div id="ItemsLists">
-        <button id="removeItem" onClick={() => props.removeItem(MOCKED_ITEMS[0].id)} />
+    <div data-testid="ItemsLists">
+        <button data-testid="removeItem" onClick={() => props.removeItem(MOCKED_ITEMS[0].id)} />
         <button
-            id="setIsFinishedItem"
+            data-testid="setIsFinishedItem"
             onClick={() => props.setIsFinishedItem(MOCKED_ITEMS[0].id, true)}
         />
         <button
-            id="toggleIsImportantItem"
+            data-testid="toggleIsImportantItem"
             onClick={() => props.toggleIsImportantItem(MOCKED_ITEMS[0].id)}
         />
         {[...props.toDoItems, ...props.finishedItems].map(item => (
-            <span key={item.id} id={item.id}>
+            <span key={item.id} data-testid={item.id}>
                 {JSON.stringify(props)}
             </span>
         ))}
@@ -59,9 +58,9 @@ const MOCKED_ITEMS_LIST = props => (
 );
 
 const MOCKED_FORM = props => (
-    <div id="ItemForm">
+    <div data-testid="ItemForm">
         <button
-            id="addItem"
+            data-testid="addItem"
             onClick={() =>
                 props.addItem(
                     MOCKED_ITEMS[0].title,
@@ -77,7 +76,6 @@ const fetchItemsMocked = mocked(fetchItems);
 const saveItemMocked = mocked(saveItem);
 const deleteItemMocked = mocked(deleteItem);
 const updateItemMocked = mocked(updateItem);
-const calculateProgressValueMocked = mocked(calculateProgressValue);
 const ItemFormMocked = mocked(ItemForm);
 const ItemsListsMocked = mocked(ItemsLists);
 
@@ -88,7 +86,6 @@ describe('Todo items Container', () => {
         deleteItemMocked.mockClear();
         updateItemMocked.mockClear();
         ItemsListsMocked.mockClear();
-        calculateProgressValueMocked.mockClear();
 
         fetchItemsMocked.mockImplementation((): Promise<ItemI[]> => Promise.resolve([]));
         saveItemMocked.mockImplementation((): Promise<ItemI> => Promise.resolve(MOCKED_ITEMS[0]));
@@ -96,16 +93,15 @@ describe('Todo items Container', () => {
         updateItemMocked.mockImplementation((): Promise<void> => Promise.resolve());
         ItemFormMocked.mockImplementation(MOCKED_FORM);
         ItemsListsMocked.mockImplementation(MOCKED_ITEMS_LIST);
-        calculateProgressValueMocked.mockImplementation(() => 10);
     });
 
     afterEach(cleanup);
 
     it('should render form and columns', () => {
-        const { container } = render(<Container />);
+        const { getByTestId } = render(<Container />);
 
-        const itemForm = container.querySelector('#ItemForm');
-        const itemsLists = container.querySelector('#ItemsLists');
+        const itemForm = getByTestId('ItemForm');
+        const itemsLists = getByTestId('ItemsLists');
 
         expect(itemForm).toBeTruthy();
         expect(itemsLists).toBeTruthy();
@@ -113,24 +109,23 @@ describe('Todo items Container', () => {
 
     it('should fetch items and display them in columns after loading page', async () => {
         fetchItemsMocked.mockImplementation(() => Promise.resolve(MOCKED_ITEMS));
-        const { container } = render(<Container />);
+        const { container, getByTestId } = render(<Container />);
 
         await waitForDomChange({ container });
-        const firstItem = container.querySelector('#taskId1');
-        const secondItem = container.querySelector('#taskId2');
+        const firstItem = getByTestId('taskId1');
+        const secondItem = getByTestId('taskId2');
 
-        expect(calculateProgressValueMocked).toBeCalledTimes(2);
         expect(firstItem).toBeTruthy();
         expect(secondItem).toBeTruthy();
     });
 
     it('should add item', async () => {
-        const { container } = render(<Container />);
-        const addItemButton = container.querySelector('#addItem') as Element;
+        const { container, getByTestId } = render(<Container />);
+        const addItemButton = getByTestId('addItem');
 
         fireEvent.click(addItemButton);
         await waitForDomChange({ container });
-        const firstItem = container.querySelector('#taskId1');
+        const firstItem = getByTestId('taskId1');
 
         expect(firstItem).toBeTruthy();
         expect(saveItemMocked).toBeCalledTimes(1);
@@ -144,44 +139,38 @@ describe('Todo items Container', () => {
 
     it('should remove item', async () => {
         fetchItemsMocked.mockImplementation(() => Promise.resolve([MOCKED_ITEMS[0]]));
-        const { container } = render(<Container />);
-        const removeItemButton = container.querySelector('#removeItem') as Element;
+        const { container, getByTestId, queryByTestId } = render(<Container />);
+        const removeItemButton = getByTestId('removeItem');
 
         await waitForDomChange({ container });
-        const firstItemBeforeRemove = container.querySelector('#taskId1');
+        const itemBeforeRemove = getByTestId('taskId1');
 
         fireEvent.click(removeItemButton);
         await waitForDomChange({ container });
 
-        const firstItemAfterRemove = container.querySelector('#taskId1');
+        const itemAfterRemove = queryByTestId('taskId1');
 
-        expect(firstItemBeforeRemove).toBeTruthy();
-        expect(firstItemAfterRemove).toBeNull();
+        expect(itemBeforeRemove).toBeTruthy();
+        expect(itemAfterRemove).toBeNull();
         expect(deleteItemMocked).toBeCalledTimes(1);
         expect(deleteItemMocked).toBeCalledWith(MOCKED_ITEMS[0].id);
     });
 
     it('should toggle is important item', async () => {
         fetchItemsMocked.mockImplementation(() => Promise.resolve([MOCKED_ITEMS[0]]));
-        const { container } = render(<Container />);
-        const toggleButton = container.querySelector('#toggleIsImportantItem') as Element;
+        const { container, getByTestId } = render(<Container />);
+        const toggleButton = getByTestId('toggleIsImportantItem');
 
         await waitForDomChange({ container });
-        const firstItemContentBeforeToggle = (container.querySelector('#taskId1') as Element)
-            .textContent;
+        const itemContentBeforeToggle = getByTestId('taskId1').textContent;
 
         fireEvent.click(toggleButton);
 
         await waitForDomChange({ container });
-        const firstItemContentAfterToggle = (container.querySelector('#taskId1') as Element)
-            .textContent;
+        const itemContentAfterToggle = getByTestId('taskId1').textContent;
 
-        expect(firstItemContentBeforeToggle).toContain(
-            `"isImportant":${MOCKED_ITEMS[0].isImportant}`,
-        );
-        expect(firstItemContentAfterToggle).toContain(
-            `"isImportant":${!MOCKED_ITEMS[0].isImportant}`,
-        );
+        expect(itemContentBeforeToggle).toContain(`"isImportant":${MOCKED_ITEMS[0].isImportant}`);
+        expect(itemContentAfterToggle).toContain(`"isImportant":${!MOCKED_ITEMS[0].isImportant}`);
         expect(updateItem).toBeCalledTimes(1);
         expect(updateItemMocked).toBeCalledWith(MOCKED_ITEMS[0].id, {
             isImportant: !MOCKED_ITEMS[0].isImportant,
@@ -189,8 +178,8 @@ describe('Todo items Container', () => {
     });
 
     it('should do nothing with item when action toggle is executed on not existing item', () => {
-        const { container } = render(<Container />);
-        const toggleButton = container.querySelector('#toggleIsImportantItem') as Element;
+        const { getByTestId } = render(<Container />);
+        const toggleButton = getByTestId('toggleIsImportantItem');
 
         fireEvent.click(toggleButton);
 
@@ -199,22 +188,19 @@ describe('Todo items Container', () => {
 
     it('should set isFinished state to true on item', async () => {
         fetchItemsMocked.mockImplementation(() => Promise.resolve([MOCKED_ITEMS[0]]));
-        const { container } = render(<Container />);
-        const setIsFinishedButton = container.querySelector('#setIsFinishedItem') as Element;
+        const { container, getByTestId } = render(<Container />);
+        const setIsFinishedButton = getByTestId('setIsFinishedItem');
 
         await waitForDomChange({ container });
-
-        const firstItemContentBeforeSetIsFinished = (container.querySelector('#taskId1') as Element)
-            .textContent;
+        const itemContentBeforeSetIsFinished = getByTestId('taskId1').textContent;
 
         fireEvent.click(setIsFinishedButton);
 
         await waitForDomChange({ container });
-        const firstItemContentAfterSetIsFinished = (container.querySelector('#taskId1') as Element)
-            .textContent;
+        const itemContentAfterSetIsFinished = getByTestId('taskId1').textContent;
 
-        expect(firstItemContentBeforeSetIsFinished).toContain('"isFinished":false');
-        expect(firstItemContentAfterSetIsFinished).toContain('"isFinished":true');
+        expect(itemContentBeforeSetIsFinished).toContain('"isFinished":false');
+        expect(itemContentAfterSetIsFinished).toContain('"isFinished":true');
         expect(updateItem).toBeCalledTimes(1);
         expect(updateItemMocked).toBeCalledWith(MOCKED_ITEMS[0].id, {
             isFinished: !MOCKED_ITEMS[0].isFinished,
