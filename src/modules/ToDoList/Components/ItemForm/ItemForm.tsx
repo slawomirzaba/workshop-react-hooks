@@ -36,8 +36,6 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
         setIsImportant(false);
     };
 
-    console.log('rendering...');
-
     if (!authorizationContext.authenticated)
         return <div className="item-form">Log in if you want to add new item!</div>;
 

@@ -10,6 +10,7 @@ import { ItemForm } from '../Components/ItemForm';
 import { ItemsLists } from '../Components/ItemsLists';
 import { ItemI, DataBaseItemI } from '../interfaces/ItemI';
 import { fetchItems, saveItem, deleteItem, updateItem } from '../services';
+import { calculateProgressValue } from '../lib';
 
 const SET_ITEMS = 'SET_ITEMS';
 const ADD_ITEM = 'ADD_ITEM';
@@ -73,9 +74,10 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
             if (item.isFinished) newFinishedItems.push(item);
             else newToDoItems.push(item);
         });
-        const newFinishedItemsPercentage = items.length
-            ? 100 - (newToDoItems.length * 100) / (newToDoItems.length + newFinishedItems.length)
-            : 0;
+        const newFinishedItemsPercentage = calculateProgressValue(
+            newToDoItems.length,
+            newFinishedItems.length,
+        );
 
         setToDoItems(newToDoItems);
         setFinishedItems(newFinishedItems);
@@ -103,7 +105,7 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
             dispatchItems({
                 itemId,
                 type: REMOVE_ITEM,
-            })
+            });
         });
     };
 
@@ -114,7 +116,7 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
                 type: UPDATE_ITEM,
                 updatedProperties: {
                     isFinished,
-                }
+                },
             });
         });
     };
@@ -131,7 +133,7 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
                 type: UPDATE_ITEM,
                 updatedProperties: {
                     isImportant: newIsImportantState,
-                }
+                },
             });
         });
     };
