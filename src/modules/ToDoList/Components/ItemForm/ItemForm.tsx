@@ -36,8 +36,6 @@ export const ItemForm: FunctionComponent<PropsI> = ({ addItem }: PropsI): ReactE
         setIsImportant(false);
     };
 
-    console.log('rendering...');
-
     if (!authorizationContext.authenticated)
         return (
             <div className="item-form" data-testid="unauthorized">

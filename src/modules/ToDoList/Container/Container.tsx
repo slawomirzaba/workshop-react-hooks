@@ -1,60 +1,22 @@
-import React, {
-    FunctionComponent,
-    ReactElement,
-    useState,
-    useEffect,
-    useMemo,
-    useReducer,
-} from 'react';
+import React, { FunctionComponent, ReactElement, useEffect, useMemo, useReducer } from 'react';
 import { ItemForm } from '../Components/ItemForm';
 import { ItemsLists } from '../Components/ItemsLists';
 import { ItemI, DataBaseItemI } from '../interfaces/ItemI';
 import { fetchItems, saveItem, deleteItem, updateItem } from '../services';
+import { itemsReducer } from './itemsReducer';
 
 const SET_ITEMS = 'SET_ITEMS';
 const ADD_ITEM = 'ADD_ITEM';
 const REMOVE_ITEM = 'REMOVE_ITEM';
 const UPDATE_ITEM = 'UPDATE_ITEM';
 
-interface ActionI {
-    type: string;
-    items?: ItemI[];
-    item?: ItemI;
-    itemId?: string;
-    updatedProperties?: Partial<ItemI>;
-}
-
-const itemsReducer = (items: ItemI[] = [], action: ActionI): ItemI[] => {
-    switch (action.type) {
-        case 'SET_ITEMS': {
-            return action.items || [];
-        }
-        case 'ADD_ITEM': {
-            return action.item ? [...items, action.item] : items;
-        }
-        case 'REMOVE_ITEM': {
-            return items.filter((item: ItemI) => item.id !== action.itemId);
-        }
-        case 'UPDATE_ITEM': {
-            return items.map((item: ItemI) => {
-                if (item.id !== action.itemId) return item;
-                return {
-                    ...item,
-                    ...action.updatedProperties,
-                };
-            });
-        }
-        default: {
-            return items;
-        }
-    }
-};
-
 export const Container: FunctionComponent = (): ReactElement<{}> => {
-    const [items, dispatchItems] = useReducer(itemsReducer, []);
-    const [toDoItems, setToDoItems] = useState<ItemI[]>([]);
-    const [finishedItems, setFinishedItems] = useState<ItemI[]>([]);
-    const [finishedItemsPercentage, setFinishedItemsPercentage] = useState(0);
+    const [itemsState, dispatchItems] = useReducer(itemsReducer, {
+        items: [],
+        toDoItems: [],
+        finishedItems: [],
+        finishedItemsPercentage: 0,
+    });
 
     useEffect(() => {
         fetchItems().then((newItems: ItemI[]) => {
@@ -64,23 +26,6 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
             });
         });
     }, []);
-
-    useEffect(() => {
-        const newToDoItems: ItemI[] = [];
-        const newFinishedItems: ItemI[] = [];
-
-        items.forEach((item: ItemI) => {
-            if (item.isFinished) newFinishedItems.push(item);
-            else newToDoItems.push(item);
-        });
-        const newFinishedItemsPercentage = items.length
-            ? 100 - (newToDoItems.length * 100) / (newToDoItems.length + newFinishedItems.length)
-            : 0;
-
-        setToDoItems(newToDoItems);
-        setFinishedItems(newFinishedItems);
-        setFinishedItemsPercentage(newFinishedItemsPercentage);
-    }, [items]);
 
     const addItem = (title: string, description: string, isImportant: boolean): void => {
         const newItem: DataBaseItemI = {
@@ -103,7 +48,7 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
             dispatchItems({
                 itemId,
                 type: REMOVE_ITEM,
-            })
+            });
         });
     };
 
@@ -114,13 +59,13 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
                 type: UPDATE_ITEM,
                 updatedProperties: {
                     isFinished,
-                }
+                },
             });
         });
     };
 
     const toggleIsImportantItem = (itemId: string): void => {
-        const currentItem = items.find(item => item.id === itemId);
+        const currentItem = itemsState.items.find(item => item.id === itemId);
         if (!currentItem) return;
 
         const newIsImportantState = !currentItem.isImportant;
@@ -131,7 +76,7 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
                 type: UPDATE_ITEM,
                 updatedProperties: {
                     isImportant: newIsImportantState,
-                }
+                },
             });
         });
     };
@@ -146,9 +91,9 @@ export const Container: FunctionComponent = (): ReactElement<{}> => {
                     [],
                 )}
                 <ItemsLists
-                    toDoItems={toDoItems}
-                    finishedItems={finishedItems}
-                    finishedItemsPercentage={finishedItemsPercentage}
+                    toDoItems={itemsState.toDoItems}
+                    finishedItems={itemsState.finishedItems}
+                    finishedItemsPercentage={itemsState.finishedItemsPercentage}
                     removeItem={removeItem}
                     setIsFinishedItem={setIsFinishedItem}
                     toggleIsImportantItem={toggleIsImportantItem}
