@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-type Inputs = HTMLInputElement | HTMLTextAreaElement;
+export type Inputs = HTMLInputElement | HTMLTextAreaElement;
 
 type TextInputHook = {
     value: string;
