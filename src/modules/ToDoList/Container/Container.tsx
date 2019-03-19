@@ -1,49 +1,80 @@
-import React, { FunctionComponent, ReactElement } from 'react';
-import { ItemForm } from '../Components/ItemForm';
-import { ItemsLists } from '../Components/ItemsLists';
-import { ItemI } from '../interfaces/ItemI';
-import { calculateProgressValue } from '../lib';
+import React, {FunctionComponent, ReactElement, useEffect, useState} from 'react';
+import {ItemForm} from '../Components/ItemForm';
+import {ItemsLists} from '../Components/ItemsLists';
+import {DataBaseItemI, ItemI} from '../interfaces/ItemI';
+import {calculateProgressValue} from '../lib';
+import {deleteItem, fetchItems, saveItem, updateItem} from "../services";
 
 export const Container: FunctionComponent = (): ReactElement<{}> => {
-    const items: ItemI[] = [
-        {
-            id: '1',
-            title: 'jakis tam task to do',
-            description: 'description taska ktory ma zostac wykonnay i jets fajny',
-            isFinished: false,
-            isImportant: false,
-        },
-        {
-            id: '3',
-            title: 'jakis tam trudny item',
-            description:
-                'description taska ktory ma zostac wykonnay i jets fajny i jest super i powinien zostac zrobiony ale jets trudny',
-            isFinished: false,
-            isImportant: true,
-        },
-        {
-            id: '2',
-            title: 'jakis tam task skonczony',
-            description: 'description asasd',
-            isFinished: true,
-            isImportant: false,
-        },
-    ];
-    const toDoItems: ItemI[] = [];
-    const finishedItems: ItemI[] = [];
-    items.forEach((item: ItemI) => {
-        if (item.isFinished) finishedItems.push(item);
-        else toDoItems.push(item);
+    const [items, setItems] = useState<ItemI[]>([]);
+    const [toDoItems, setToDoItems] = useState<ItemI[]>([]);
+    const [finishedItems, setFinishedItems] = useState<ItemI[]>([]);
+
+    const [finishedItemsPercentage, setFinishItemPercentage] = useState(0);
+
+    useEffect(() => {
+        dbFetchItems();
+    }, []);
+
+    useEffect(() => {
+        const newFinishedItems: ItemI[] = [];
+        const newToDoItems: ItemI[] = [];
+        items.forEach((item: ItemI) => {
+            if (item.isFinished) newFinishedItems.push(item);
+            else newToDoItems.push(item);
+        });
+        setToDoItems(newToDoItems);
+        setFinishedItems(newFinishedItems);
+        setFinishItemPercentage(calculateProgressValue(newToDoItems.length, newFinishedItems.length));
+    }, [items]);
+
+    const dbFetchItems = () => fetchItems().then((newItems) => {
+        setItems(newItems);
     });
-    const finishedItemsPercentage = calculateProgressValue(toDoItems.length, finishedItems.length);
+
+    const addNewItem = (title: string, description: string, isImportant: boolean) => {
+        const newItem: DataBaseItemI = {
+            title: title,
+            description: description,
+            isFinished: false,
+            isImportant: isImportant,
+        };
+        saveItem(newItem).then((addedItem: ItemI) => {
+            setItems([...items, addedItem]);
+        });
+    };
+
+    const removeItem = (itemId: string): void => {
+        deleteItem(itemId).then((item) => {
+            setItems(items.filter((item) => item.id !== itemId));
+        })
+    };
+
+    const setItemFinished = (itemId:string, isFinished:boolean) => {
+          updateItem(itemId, {
+              isFinished: isFinished,
+          }).then((item)=>{
+              setItems((prevItems:ItemI[]) => {
+                  const newItems = [...prevItems];
+                  newItems.map((item:ItemI)=>{
+                      if(item.id === itemId){
+                          item.isFinished=isFinished;
+                      }
+                  });
+                  return newItems;
+              })
+          })
+    };
 
     return (
         <div className="content">
-            <ItemForm />
+            <ItemForm addNewItem={addNewItem}/>
             <ItemsLists
                 toDoItems={toDoItems}
                 finishedItems={finishedItems}
                 finishedItemsPercentage={finishedItemsPercentage}
+                removeItem={removeItem}
+                setItemFinished={setItemFinished}
             />
         </div>
     );

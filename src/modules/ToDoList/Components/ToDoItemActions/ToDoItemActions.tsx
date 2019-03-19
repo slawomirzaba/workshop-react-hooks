@@ -3,15 +3,20 @@ import { RemoveButton } from '../RemoveButton';
 
 interface PropsI {
     isImportantItem: boolean;
+    removeItem: () => void;
+    setItemFinished: () => void;
 }
 
 export const ToDoItemActions: FunctionComponent<PropsI> = ({
     isImportantItem,
+    removeItem,
+    setItemFinished,
 }: PropsI): ReactElement<PropsI> => (
     <div className="items-column__item-actions">
         <button
             className="items-column__action-button items-column__action-button--check"
             title="Mark as finished"
+            onClick={setItemFinished}
         >
             <i className="fas fa-check" />
         </button>
@@ -23,6 +28,6 @@ export const ToDoItemActions: FunctionComponent<PropsI> = ({
                 className={isImportantItem ? 'fas fa-star' : 'far fa-star'}
             />
         </button>
-        <RemoveButton />
+        <RemoveButton removeItem={removeItem}/>
     </div>
 );
